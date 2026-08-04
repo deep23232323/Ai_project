@@ -8,7 +8,9 @@ import { getMemory } from "../config/memory.js";
 import { searchAgent } from "./search.agent.js";
 
 export const chatAgent = async (state) => {
-  const llm = getModel("chat");
+
+  try {
+    const llm = getModel("chat");
 
   const history = await getMemory(state.conversationId);
 
@@ -67,4 +69,13 @@ Formatting:
     ...state,
     aiResponse: response.content,
   };
+  } catch (error) {
+    return {
+    ...state,
+    aiResponse: "❌ failed to generate response",
+  };
+    
+  }
+
+  
 };

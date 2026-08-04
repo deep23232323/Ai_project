@@ -46,7 +46,7 @@ export const getModel = (agent) => {
       return gemini;
 
     case "vision":
-      return gemini;
+      return groq;
 
     default:
       return groq;
