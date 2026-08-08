@@ -69,7 +69,7 @@ function ChatInput() {
 
     try {
       const data = await sendMessage(payload);
-      dispatch(setArtifacts(data.artifacts || []));
+      dispatch(setArtifacts(data?.artifacts || []));
 
       dispatch(
         addMessages({

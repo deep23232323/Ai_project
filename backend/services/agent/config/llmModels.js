@@ -40,10 +40,10 @@ export const getModel = (agent) => {
       return groq; // or gemini if you prefer
 
     case "pdf":
-      return gemini;
+      return groq;
 
     case "ppt":
-      return gemini;
+      return groq;
 
     case "vision":
       return groq;

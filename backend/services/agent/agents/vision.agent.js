@@ -20,16 +20,17 @@ const prompt=res.content.trim()
 const imageUrl=`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
 console.log("Requesting:", imageUrl);
 const imageRes=await axios.get(imageUrl, {responseType:"arraybuffer"})
+console.log(imageRes)
 
 const buffer=Buffer.from(imageRes.data)
 const filename=`${Date.now()}.png`
 await uploadToS3(filename, buffer, "image/png")
-const downloadUrl = await getFromS3(filename,24*60*60)
+const downloadUrl = await getFromS3(filename,24*60)
 
 return {
   ...state,
   aiResponse: `
-# 🎨 Image Generated Successfully
+ 🎨
 
 ![Generated Image](${downloadUrl})
 

@@ -1,4 +1,5 @@
 import { getModel } from "../config/llmModels.js";
+import { parseLLMJson } from "../utils/parseJson.js";
 
 export const codingAgent = async (state) => {
   const intentLlm = await getModel("intent");
@@ -107,7 +108,10 @@ USER REQUEST
 ${state.prompt}
 `;
     const res = await llm.invoke(prompt);
-    const data = JSON.parse(res.content);
+    console.log("RAW RESPONSE:");
+console.log(res.content);
+    
+const data = parseLLMJson(res.content);
     return {
       ...state,
       aiResponse: "Code generated Successfully.",

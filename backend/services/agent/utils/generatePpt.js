@@ -1,0 +1,411 @@
+import pptxgen from "pptxgenjs";
+ 
+/**
+ * ENHANCED PPT GENERATOR
+ * ----------------------
+ * Adds: multiple slide layouts, icon badges (no external assets needed),
+ * chart support, stat cards, quote slides, section dividers, progress bar,
+ * and subtle depth/shadow styling — all still zero-cost (pure pptxgenjs).
+ *
+ * Your AI prompt needs to output a `layout` field per slide (see bottom
+ * of this file for the updated prompt + expected JSON shape).
+ */
+ 
+const COLORS = {
+  primary: "2563EB",
+  primaryLight: "60A5FA",
+  primaryPale: "DBEAFE",
+  secondary: "0F172A",
+  text: "334155",
+  light: "F8FAFC",
+  border: "E2E8F0",
+  white: "FFFFFF",
+  muted: "64748B",
+  accents: ["2563EB", "0EA5E9", "10B981", "F59E0B", "EF4444", "8B5CF6"], // used to rotate icon colors / chart series
+};
+ 
+export const generatePpt = async (data) => {
+  const ppt = new pptxgen();
+ 
+  ppt.layout = "LAYOUT_WIDE";
+  ppt.author = "SadikAI";
+  ppt.title = data.title;
+  ppt.subject = data.title;
+  ppt.company = "SadikAI";
+  ppt.theme = { headFontFace: "Aptos", bodyFontFace: "Aptos" };
+ 
+  addCover(ppt, data);
+ 
+  const slides = data?.slides || [];
+  slides.forEach((s, i) => {
+    switch (s.layout) {
+      case "stat":
+        addStatSlide(ppt, s, i + 1, slides.length);
+        break;
+      case "quote":
+        addQuoteSlide(ppt, s, i + 1, slides.length);
+        break;
+      case "chart":
+        addChartSlide(ppt, s, i + 1, slides.length);
+        break;
+      case "twoColumn":
+        addTwoColumnSlide(ppt, s, i + 1, slides.length);
+        break;
+      case "section":
+        addSectionDivider(ppt, s);
+        break;
+      case "bullets":
+      default:
+        addContentSlide(ppt, s, i + 1, slides.length);
+        break;
+    }
+  });
+ 
+  addThankYou(ppt);
+  return ppt;
+};
+ 
+// ---------------------------------------------------------
+// SHARED HELPERS
+// ---------------------------------------------------------
+ 
+// Small round "icon badge" — replaces the plain dot. Uses a unicode glyph,
+// no external image/font files needed, so it works in any environment.
+function addIconBadge(slide, { x, y, size = 0.32, glyph = "✓", color }) {
+  slide.addShape("ellipse", {
+    x,
+    y,
+    w: size,
+    h: size,
+    fill: { color },
+    line: { color, width: 0 },
+    shadow: { type: "outer", color: "000000", opacity: 0.25, blur: 3, offset: 1, angle: 90 },
+  });
+  slide.addText(glyph, {
+    x,
+    y: y - 0.01,
+    w: size,
+    h: size,
+    align: "center",
+    valign: "middle",
+    fontSize: 12,
+    bold: true,
+    color: COLORS.white,
+  });
+}
+ 
+// Thin progress bar at the bottom showing how far through the deck we are.
+function addProgressBar(slide, page, total) {
+  const fullW = 12.13; // matches the 0.6 -> 12.73 content margin
+  const filledW = (page / total) * fullW;
+ 
+  slide.addShape("rect", {
+    x: 0.6,
+    y: 7.32,
+    w: fullW,
+    h: 0.03,
+    fill: { color: COLORS.border },
+    line: { color: COLORS.border, width: 0 },
+  });
+  slide.addShape("rect", {
+    x: 0.6,
+    y: 7.32,
+    w: filledW,
+    h: 0.03,
+    fill: { color: COLORS.primary },
+    line: { color: COLORS.primary, width: 0 },
+  });
+}
+ 
+function addFooter(slide, page, total) {
+  slide.addText(`${page}/${total}`, {
+    x: 12.1, y: 6.9, w: 0.8, h: 0.2,
+    align: "right", fontSize: 10, color: COLORS.muted,
+  });
+  slide.addText("SadikAI", {
+    x: 0.6, y: 6.9, w: 2, h: 0.2,
+    fontSize: 10, color: COLORS.muted,
+  });
+  addProgressBar(slide, page, total);
+}
+ 
+function addTitleBlock(slide, title) {
+  slide.addText(title, {
+    x: 0.6, y: 0.35, w: 11, h: 0.6,
+    fontSize: 24, bold: true, color: COLORS.primary,
+  });
+  slide.addShape("line", {
+    x: 0.6, y: 0.95, w: 12, h: 0,
+    line: { color: COLORS.border, width: 1.2 },
+  });
+}
+ 
+// ---------------------------------------------------------
+// COVER
+// ---------------------------------------------------------
+ 
+const addCover = (ppt, data) => {
+  const slide = ppt.addSlide();
+  slide.background = { color: COLORS.primary };
+ 
+  // Decorative translucent circles for depth (purely shape-based, no images)
+  slide.addShape("ellipse", { x: 10.5, y: -1.5, w: 5, h: 5, fill: { color: "3B82F6", transparency: 60 }, line: { type: "none" } });
+  slide.addShape("ellipse", { x: -1.5, y: 5, w: 4, h: 4, fill: { color: "1D4ED8", transparency: 55 }, line: { type: "none" } });
+ 
+  slide.addShape("rect", {
+    x: 0, y: 0, w: 13.33, h: 0.18,
+    fill: { color: COLORS.primaryLight },
+    line: { color: COLORS.primaryLight, width: 0 },
+  });
+ 
+  slide.addText(data.title, {
+    x: 0.7, y: 1.7, w: 12, h: 0.8,
+    align: "center", color: COLORS.white, bold: true, fontSize: 32,
+    shadow: { type: "outer", color: "000000", opacity: 0.3, blur: 4, offset: 2, angle: 90 },
+  });
+  slide.addText(data.subtitle || "", {
+    x: 1, y: 2.8, w: 11.5, h: 0.4,
+    align: "center", color: COLORS.primaryPale, fontSize: 15,
+  });
+  slide.addText("Generated By SadikAI", {
+    x: 0, y: 6.9, w: 13.33, h: 0.2,
+    align: "center", color: "BFDBFE", fontSize: 10,
+  });
+};
+ 
+// ---------------------------------------------------------
+// LAYOUT 1: BULLET LIST (upgraded — icon badges + shadowed rows)
+// ---------------------------------------------------------
+ 
+const addContentSlide = (ppt, s, page, total) => {
+  const slide = ppt.addSlide();
+  slide.background = { color: COLORS.white };
+  addTitleBlock(slide, s.title);
+ 
+  const visiblePoints = (s.points || []).slice(0, 6);
+  visiblePoints.forEach((point, index) => {
+    const y = 1.25 + index * 0.75;
+    const accent = COLORS.accents[index % COLORS.accents.length];
+ 
+    slide.addShape("roundRect", {
+      x: 0.7, y, w: 12, h: 0.58,
+      fill: { color: index % 2 ? COLORS.light : COLORS.primaryPale },
+      line: { color: COLORS.border, width: 0.75 },
+      radius: 0.08,
+      shadow: { type: "outer", color: "000000", opacity: 0.12, blur: 4, offset: 1, angle: 90 },
+    });
+ 
+    addIconBadge(slide, { x: 0.85, y: y + 0.13, glyph: "✓", color: accent });
+ 
+    slide.addText(point, {
+      x: 1.35, y: y + 0.08, w: 11, h: 0.4,
+      fontSize: 15, color: COLORS.text, fit: "shrink", valign: "middle",
+    });
+  });
+ 
+  addFooter(slide, page, total);
+};
+ 
+// ---------------------------------------------------------
+// LAYOUT 2: TWO COLUMN (e.g. Pros/Cons, Before/After)
+// expects: s.columns = [{ heading, points: [] }, { heading, points: [] }]
+// ---------------------------------------------------------
+ 
+const addTwoColumnSlide = (ppt, s, page, total) => {
+  const slide = ppt.addSlide();
+  slide.background = { color: COLORS.white };
+  addTitleBlock(slide, s.title);
+ 
+  const cols = s.columns || [];
+  const colWidth = 5.8;
+  const startXs = [0.6, 6.9];
+ 
+  cols.slice(0, 2).forEach((col, ci) => {
+    const x = startXs[ci];
+    const accent = COLORS.accents[ci % COLORS.accents.length];
+ 
+    slide.addShape("roundRect", {
+      x, y: 1.2, w: colWidth, h: 0.5,
+      fill: { color: accent }, line: { type: "none" }, radius: 0.06,
+    });
+    slide.addText(col.heading || "", {
+      x, y: 1.2, w: colWidth, h: 0.5,
+      align: "center", valign: "middle", color: COLORS.white, bold: true, fontSize: 16,
+    });
+ 
+    (col.points || []).slice(0, 5).forEach((pt, pi) => {
+      const y = 1.9 + pi * 0.72;
+      slide.addShape("roundRect", {
+        x, y, w: colWidth, h: 0.55,
+        fill: { color: COLORS.light }, line: { color: COLORS.border, width: 0.75 }, radius: 0.06,
+      });
+      addIconBadge(slide, { x: x + 0.12, y: y + 0.12, size: 0.28, glyph: "•", color: accent });
+      slide.addText(pt, {
+        x: x + 0.55, y: y + 0.05, w: colWidth - 0.7, h: 0.45,
+        fontSize: 13, color: COLORS.text, fit: "shrink", valign: "middle",
+      });
+    });
+  });
+ 
+  // center divider
+  slide.addShape("line", {
+    x: 6.665, y: 1.2, w: 0, h: 5.2,
+    line: { color: COLORS.border, width: 1 },
+  });
+ 
+  addFooter(slide, page, total);
+};
+ 
+// ---------------------------------------------------------
+// LAYOUT 3: STAT CARDS (big numbers)
+// expects: s.stats = [{ value, label }] (2-4 items)
+// ---------------------------------------------------------
+ 
+const addStatSlide = (ppt, s, page, total) => {
+  const slide = ppt.addSlide();
+  slide.background = { color: COLORS.white };
+  addTitleBlock(slide, s.title);
+ 
+  const stats = (s.stats || []).slice(0, 4);
+  const n = stats.length || 1;
+  const gap = 0.4;
+  const cardW = (12 - gap * (n - 1)) / n;
+ 
+  stats.forEach((stat, i) => {
+    const x = 0.7 + i * (cardW + gap);
+    const accent = COLORS.accents[i % COLORS.accents.length];
+ 
+    slide.addShape("roundRect", {
+      x, y: 2.0, w: cardW, h: 2.6,
+      fill: { color: COLORS.light }, line: { color: COLORS.border, width: 1 }, radius: 0.1,
+      shadow: { type: "outer", color: "000000", opacity: 0.15, blur: 5, offset: 2, angle: 90 },
+    });
+    slide.addShape("rect", {
+      x, y: 2.0, w: cardW, h: 0.08,
+      fill: { color: accent }, line: { type: "none" },
+    });
+    slide.addText(String(stat.value), {
+      x, y: 2.3, w: cardW, h: 1.1,
+      align: "center", valign: "middle", fontSize: 40, bold: true, color: accent,
+    });
+    slide.addText(stat.label || "", {
+      x: x + 0.15, y: 3.5, w: cardW - 0.3, h: 0.9,
+      align: "center", valign: "top", fontSize: 13, color: COLORS.text, fit: "shrink",
+    });
+  });
+ 
+  addFooter(slide, page, total);
+};
+ 
+// ---------------------------------------------------------
+// LAYOUT 4: QUOTE / CALLOUT
+// expects: s.quote, s.source (optional)
+// ---------------------------------------------------------
+ 
+const addQuoteSlide = (ppt, s, page, total) => {
+  const slide = ppt.addSlide();
+  slide.background = { color: COLORS.secondary };
+ 
+  slide.addText("“", {
+    x: 0.8, y: 1.0, w: 2, h: 1.5,
+    fontSize: 100, color: COLORS.primaryLight, bold: true,
+  });
+ 
+  slide.addText(s.quote || "", {
+    x: 1.5, y: 2.3, w: 10.3, h: 2.0,
+    align: "center", valign: "middle", fontSize: 26, italic: true,
+    color: COLORS.white, fit: "shrink",
+  });
+ 
+  if (s.source) {
+    slide.addText(`— ${s.source}`, {
+      x: 1.5, y: 4.4, w: 10.3, h: 0.4,
+      align: "center", fontSize: 14, color: COLORS.muted,
+    });
+  }
+ 
+  addFooter(slide, page, total);
+};
+ 
+// ---------------------------------------------------------
+// LAYOUT 5: CHART
+// expects: s.chart = { type: "bar" | "pie" | "line", categories: [], series: [{name, values}] }
+// ---------------------------------------------------------
+ 
+const addChartSlide = (ppt, s, page, total) => {
+  const slide = ppt.addSlide();
+  slide.background = { color: COLORS.white };
+  addTitleBlock(slide, s.title);
+ 
+  const chart = s.chart || {};
+  const chartTypeMap = { bar: "bar", pie: "pie", line: "line" };
+  const type = chartTypeMap[chart.type] || "bar";
+ 
+  const dataForChart =
+    type === "pie"
+      ? [{ name: s.title, labels: chart.categories || [], values: (chart.series?.[0]?.values) || [] }]
+      : (chart.series || []).map((s2) => ({
+          name: s2.name,
+          labels: chart.categories || [],
+          values: s2.values || [],
+        }));
+ 
+  slide.addChart(ppt.ChartType[type], dataForChart, {
+    x: 0.8, y: 1.2, w: 11.5, h: 5.4,
+    chartColors: COLORS.accents,
+    showLegend: true,
+    legendPos: "b",
+    showTitle: false,
+    dataLabelColor: COLORS.text,
+    catAxisLabelColor: COLORS.text,
+    valAxisLabelColor: COLORS.text,
+  });
+ 
+  addFooter(slide, page, total);
+};
+ 
+// ---------------------------------------------------------
+// SECTION DIVIDER (big colored break between topic groups)
+// expects: s.title, optional s.subtitle
+// ---------------------------------------------------------
+ 
+const addSectionDivider = (ppt, s) => {
+  const slide = ppt.addSlide();
+  slide.background = { color: COLORS.primary };
+ 
+  slide.addShape("rect", {
+    x: 0, y: 3.55, w: 1.2, h: 0.08,
+    fill: { color: COLORS.white }, line: { type: "none" },
+  });
+  slide.addText(s.title, {
+    x: 0.8, y: 2.9, w: 11.7, h: 1.0,
+    fontSize: 30, bold: true, color: COLORS.white,
+  });
+  if (s.subtitle) {
+    slide.addText(s.subtitle, {
+      x: 0.8, y: 3.9, w: 11.7, h: 0.6,
+      fontSize: 15, color: COLORS.primaryPale,
+    });
+  }
+};
+ 
+// ---------------------------------------------------------
+// THANK YOU
+// ---------------------------------------------------------
+ 
+const addThankYou = (ppt) => {
+  const slide = ppt.addSlide();
+  slide.background = { color: COLORS.secondary };
+ 
+  slide.addShape("ellipse", { x: -2, y: -2, w: 5, h: 5, fill: { color: "1E293B", transparency: 40 }, line: { type: "none" } });
+  slide.addShape("ellipse", { x: 10.5, y: 5, w: 5, h: 5, fill: { color: "1E293B", transparency: 40 }, line: { type: "none" } });
+ 
+  slide.addText("Thank You", {
+    x: 0, y: 2.2, w: 13.33, h: 0.8,
+    align: "center", color: COLORS.white, bold: true, fontSize: 34,
+  });
+  slide.addText("Generated By SadikAI", {
+    x: 0, y: 6.9, w: 13.33, h: 0.2,
+    align: "center", color: "94A3B8", fontSize: 10,
+  });
+};
