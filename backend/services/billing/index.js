@@ -1,0 +1,23 @@
+import dotenv from "dotenv"
+dotenv.config()
+import express from "express"
+import connect from "./config/db.js"
+import router from "./routes/billing.route.js";
+
+const port = process.env.port
+const app = express()
+app.use(express.json())
+
+
+
+app.get("/", (req, res) => {
+    return res.json("hello from billing")
+})
+app.use("/",router)
+
+
+
+app.listen(port, () => {
+    console.log(`billing service  started on port ${port}`)
+    connect()
+})
