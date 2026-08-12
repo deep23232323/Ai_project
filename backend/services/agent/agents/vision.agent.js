@@ -2,6 +2,7 @@ import axios from "axios";
 import { getModel } from "../config/llmModels.js";
 import { uploadToS3 } from "../utils/uploadToS3.js";
 import { getFromS3 } from "../utils/getFromS3.js";
+import { deductCredits } from "../utils/deductCredits.js";
 
 export const visionAgent=async(state) => {
     try {
@@ -20,6 +21,8 @@ const prompt=res.content.trim()
 const imageUrl=`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
 console.log("Requesting:", imageUrl);
 const imageRes=await axios.get(imageUrl, {responseType:"arraybuffer"})
+await deductCredits(state.userId,"vidion")
+
 console.log(imageRes)
 
 const buffer=Buffer.from(imageRes.data)
