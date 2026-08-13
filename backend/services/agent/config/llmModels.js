@@ -36,6 +36,9 @@ export const getModel = (agent) => {
     case "coding":
       return openrouter;
 
+    case "imageAnalyzer":
+      return gemini;
+
     case "router":
       return groq; // or gemini if you prefer
 
