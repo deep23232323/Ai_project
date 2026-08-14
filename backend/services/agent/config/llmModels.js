@@ -13,11 +13,10 @@ const groq = new ChatGroq({
 });
 
 const gemini = new ChatGoogleGenerativeAI({
-  model: "gemini-2.5-flash",
+  model: "gemini-3.6-flash", // or "gemini-3.5-flash-lite" for a cheaper/faster option
   temperature: 0,
   maxRetries: 2,
 });
-
 
 const openrouter = new ChatOpenRouter({
   model: "deepseek/deepseek-chat",

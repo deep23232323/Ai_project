@@ -1,6 +1,6 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { getModel } from "../config/llmModels.js";
-import fs from "fs";
+import fs from "fs/promises";
 import { deductCredits } from "../utils/deductCredits.js";
 
 export const imageAnalyzer = async (state) => {
@@ -12,7 +12,7 @@ export const imageAnalyzer = async (state) => {
 
     const messages = [
       new SystemMessage(
-        `You are CortexAI image analyzer Agent.
+        `You are sadikAI image analyzer Agent.
 
 Rules:
 
@@ -54,7 +54,11 @@ Rules:
         aiResponse:"failed to analyze image"
     }
   }
-  finally{
-    fs.unlink(state.file.path)
+  finally {
+  try {
+    await fs.unlink(state.file.path);
+  } catch (err) {
+    console.error("Failed to delete temp file:", err);
   }
+}
 };

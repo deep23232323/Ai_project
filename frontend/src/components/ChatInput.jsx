@@ -8,9 +8,10 @@ import {
   Paperclip,
   Presentation,
   Send,
+  X,
   Zap,
 } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import sendMessage from "../features/sendMessage";
 import { useDispatch, useSelector } from "react-redux";
 import { addMessages, setArtifacts } from "../redux/messageSlice";
@@ -27,6 +28,8 @@ function ChatInput() {
   const [valuee, setValuee] = useState("");
   const { selectedConversation } = useSelector((state) => state.conversation);
   const { messages } = useSelector((state) => state.message);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileRef = useRef(null);
   const dispatch = useDispatch();
 
   const handleSendMessage = async () => {
@@ -61,14 +64,16 @@ function ChatInput() {
 
     dispatch(addMessages({ role: "user", content: message }));
 
-    const payload = {
-      prompt: message,
-      conversationId: conversation._id,
-      agent: selectedAgent.toLowerCase(),
-    };
+    console.log(selectedFile);
+    const formData = new FormData();
+
+    formData.append("prompt", message);
+    formData.append("conversationId", conversation?._id);
+    formData.append("agent", selectedAgent.toLowerCase());
+    formData.append("file", selectedFile);
 
     try {
-      const data = await sendMessage(payload);
+      const data = await sendMessage(formData);
       dispatch(setArtifacts(data?.artifacts || []));
 
       dispatch(
@@ -162,6 +167,41 @@ function ChatInput() {
           })}
         </div>
 
+        {selectedFile && (
+          <div className="my-3">
+            <div className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white[0.04] px-3 py-2">
+              {selectedFile?.type === "application/pdf" ? (
+                <FileText size={16} className="text-red-400" />
+              ) : (
+                selectedFile.type.startsWith("image/") && (
+                  <img
+                    src={URL.createObjectURL(selectedFile)}
+                    className="h-10 w-10 rounded-xl object-cover mt-3"
+                  />
+                )
+              )}
+
+              <div>
+              <p className="text-xs text-white">{selectedFile?.name}</p>
+              <p className="text-[10px] text-slate-500">
+                {Math.ceil(selectedFile.size)}KB
+              </p>
+            </div>
+            <button
+              className="ml-2"
+              onClick={() => {
+                setSelectedFile(null);
+                fileRef.current.value = "";
+              }}
+            >
+              <X size={14} className="text-slate-500 hover:text-white" />
+            </button>
+            </div>
+
+            
+          </div>
+        )}
+
         <textarea
           placeholder="Ask Anything..."
           className="w-full bg-transparent outline-none resize-none text-[14px] text-slate-200 placeholder:text-slate-600 leading-relaxed [scrollbar-width:none] [&::-webkit-scrollbar]:hidden disabled:opacity-50"
@@ -179,11 +219,25 @@ function ChatInput() {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1">
+            <input
+              type="file"
+              accept=".pdf,image/*"
+              hidden
+              ref={fileRef}
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) {
+                  setSelectedFile(file);
+                }
+              }}
+            />
+
             <button
               className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-600
     hover:text-slate-400 hover:bg-white/[0.05]
     border border-transparent hover:border-white/[0.06]
     transition-all duration-150 bg-transparent cursor-pointer"
+              onClick={() => fileRef.current.click()}
             >
               <Paperclip size={16} />
             </button>
