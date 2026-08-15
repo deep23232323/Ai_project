@@ -28,6 +28,7 @@ function ChatInput() {
   const [valuee, setValuee] = useState("");
   const { selectedConversation } = useSelector((state) => state.conversation);
   const [selectedFile, setSelectedFile] = useState(null);
+  const {isLoading} = useSelector(state => state.message)
   const fileRef = useRef(null);
   const dispatch = useDispatch();
 
@@ -256,7 +257,7 @@ function ChatInput() {
             </button>
           </div>
           <button
-            disabled={!valuee.trim()}
+            disabled={!valuee.trim() || isLoading}
             onClick={handleSendMessage}
             className={`flex items-center justify-center w-8 h-8 rounded-lg border-none transition-all duration-150 ${
               valuee.trim()
