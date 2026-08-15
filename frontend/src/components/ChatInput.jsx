@@ -14,7 +14,7 @@ import {
 import { useRef, useState } from "react";
 import sendMessage from "../features/sendMessage";
 import { useDispatch, useSelector } from "react-redux";
-import { addMessages, setArtifacts } from "../redux/messageSlice";
+import { addMessages, setArtifacts, setIsloading } from "../redux/messageSlice";
 import { createConversation } from "../features/createConversation";
 import {
   addConversation,
@@ -27,12 +27,12 @@ function ChatInput() {
   const [selectedAgent, setSelectedAgent] = useState("Auto");
   const [valuee, setValuee] = useState("");
   const { selectedConversation } = useSelector((state) => state.conversation);
-  const { messages } = useSelector((state) => state.message);
   const [selectedFile, setSelectedFile] = useState(null);
   const fileRef = useRef(null);
   const dispatch = useDispatch();
 
   const handleSendMessage = async () => {
+    dispatch(setIsloading(true))
     const message = valuee.trim();
 
     if (!message) return;
@@ -70,10 +70,13 @@ function ChatInput() {
     formData.append("prompt", message);
     formData.append("conversationId", conversation?._id);
     formData.append("agent", selectedAgent.toLowerCase());
-    formData.append("file", selectedFile);
+    if(selectedFile){
+          formData.append("file", selectedFile)
+    }
 
     try {
       const data = await sendMessage(formData);
+      dispatch(setIsloading(false))
       dispatch(setArtifacts(data?.artifacts || []));
 
       dispatch(
@@ -83,9 +86,10 @@ function ChatInput() {
           images: data?.images,
         }),
       );
-      console.log(data);
+      
     } catch (error) {
       console.error(error);
+      dispatch(setIsloading(false))
     }
   };
 
@@ -127,8 +131,8 @@ function ChatInput() {
     },
   ];
   return (
-    <div className="w-full overflow-hidden px-3 md:px-5 py-4 border-t border-white/[0.06] bg-[#0d0f14]">
-      <div className="flex flex-col gap-2 bg-white/[0.03] border border-white/[0.07] rounded-2xl px-4 pt-3.5 pb-3">
+    <div className="w-full overflow-hidden px-3 md:px-5 py-4 border-t border-white/6 bg-[#0d0f14]">
+      <div className="flex flex-col gap-2 bg-white/3 border border-white/[0.07] rounded-2xl px-4 pt-3.5 pb-3">
         <div className="flex w-[80%] gap-2 pr-2 flex-wrap">
           {agents.map((agent, i) => {
             const isActive = selectedAgent === agent.label;
@@ -139,7 +143,7 @@ function ChatInput() {
                 onClick={() => setSelectedAgent(agent.label)}
                 className={`
                 cursor-pointer
-                flex-shrink-0
+                shrink-0
                 inline-flex
                 items-center
                 gap-1.5
@@ -152,8 +156,8 @@ function ChatInput() {
                 transition-all
                 ${
                   isActive
-                    ? "bg-gradient-to-r from-indigo-500 to-violet-600 text-white border-transparent shadow-[0_1px_8px_rgba(99,102,241,.35)]"
-                    : "bg-white/[0.03] text-slate-400 border-white/[0.06] hover:bg-white/[0.07]"
+                    ? "bg-linear-to-r from-indigo-500 to-violet-600 text-white border-transparent shadow-[0_1px_8px_rgba(99,102,241,.35)]"
+                    : "bg-white/3 text-slate-400 border-white/6 hover:bg-white/[0.07]"
                 }`}
               >
                 <Icon
@@ -204,7 +208,7 @@ function ChatInput() {
 
         <textarea
           placeholder="Ask Anything..."
-          className="w-full bg-transparent outline-none resize-none text-[14px] text-slate-200 placeholder:text-slate-600 leading-relaxed [scrollbar-width:none] [&::-webkit-scrollbar]:hidden disabled:opacity-50"
+          className="w-full bg-transparent outline-none resize-none text-[14px] text-slate-200 placeholder:text-slate-600 leading-relaxed scrollbar-none [&::-webkit-scrollbar]:hidden disabled:opacity-50"
           disabled={false}
           rows={3}
           value={valuee}
@@ -234,8 +238,8 @@ function ChatInput() {
 
             <button
               className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-600
-    hover:text-slate-400 hover:bg-white/[0.05]
-    border border-transparent hover:border-white/[0.06]
+    hover:text-slate-400 hover:bg-white/5
+    border border-transparent hover:border-white/6
     transition-all duration-150 bg-transparent cursor-pointer"
               onClick={() => fileRef.current.click()}
             >
@@ -244,8 +248,8 @@ function ChatInput() {
 
             <button
               className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-600
-    hover:text-slate-400 hover:bg-white/[0.05]
-    border border-transparent hover:border-white/[0.06]
+    hover:text-slate-400 hover:bg-white/5
+    border border-transparent hover:border-white/6
     transition-all duration-150 bg-transparent cursor-pointer"
             >
               <Mic size={16} />
@@ -256,8 +260,8 @@ function ChatInput() {
             onClick={handleSendMessage}
             className={`flex items-center justify-center w-8 h-8 rounded-lg border-none transition-all duration-150 ${
               valuee.trim()
-                ? "bg-gradient-to-br from-indigo-500 to-violet-700 hover:opacity-90 text-white cursor-pointer"
-                : "bg-white/[0.05] text-slate-600 cursor-not-allowed"
+                ? "bg-linear-to-br from-indigo-500 to-violet-700 hover:opacity-90 text-white cursor-pointer"
+                : "bg-white/5 text-slate-600 cursor-not-allowed"
             }`}
           >
             {/* Icon */}
