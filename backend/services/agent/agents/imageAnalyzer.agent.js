@@ -2,9 +2,13 @@ import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { getModel } from "../config/llmModels.js";
 import fs from "fs/promises";
 import { deductCredits } from "../utils/deductCredits.js";
+import { checkAgentLimit } from "../config/agentlimit.js";
 
 export const imageAnalyzer = async (state) => {
   try {
+
+    await checkAgentLimit(state.userId, "image")
+
     const llm = await getModel("imageAnalyzer");
 
     const imageBuffer = await fs.readFile(state.file.path);
@@ -58,7 +62,11 @@ Rules:
   try {
     await fs.unlink(state.file.path);
   } catch (err) {
-    console.error("Failed to delete temp file:", err);
+    return {
+        ...state,
+        aiResponse:error?.data?.message || "failed to analyze image "
+    
+  }
   }
 }
 };

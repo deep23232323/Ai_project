@@ -1,8 +1,13 @@
+import { checkAgentLimit } from "../config/agentlimit.js";
 import { getModel } from "../config/llmModels.js";
 import { deductCredits } from "../utils/deductCredits.js";
 import { parseLLMJson } from "../utils/parseJson.js";
 
 export const codingAgent = async (state) => {
+  try {
+    
+  await checkAgentLimit(state.userId, "coding")
+
   const intentLlm = await getModel("intent");
   const llm = await getModel("coding");
   const intentRes = await intentLlm.invoke(`
@@ -164,4 +169,14 @@ const data = parseLLMJson(res.content);
     aiResponse: data,
     artifacts: [],
   };
-};
+
+
+  } catch (error) {
+    return {
+        ...state,
+        aiResponse:error?.data?.message || "failed to generate code ",
+        artifacts: [],
+    
+  }
+  }
+}

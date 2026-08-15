@@ -1,3 +1,4 @@
+import { checkAgentLimit } from "../config/agentlimit.js";
 import { getModel } from "../config/llmModels.js";
 import { deductCredits } from "../utils/deductCredits.js";
 import { generatePpt } from "../utils/generatePpt.js";
@@ -6,6 +7,9 @@ import { uploadToS3 } from "../utils/uploadToS3.js";
 
 export const pptAgent = async (state) => {
   try {
+
+    await checkAgentLimit(state.userId, "ppt")
+
     const llm = await getModel("ppt");
     
 const prompt = `You are a professional presentation designer.
@@ -100,10 +104,10 @@ ${state.prompt}`
 _Link expires in 10 minutes._`,
     };
   } catch (error) {
-    console.log(error);
-    return {
+     return {
         ...state,
-        aiResponse:"Failed to generate PPT"
-    }
+        aiResponse:error?.data?.message || "failed to generate ppt"
+    
+  }
   }
 };

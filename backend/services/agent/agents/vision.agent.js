@@ -3,9 +3,13 @@ import { getModel } from "../config/llmModels.js";
 import { uploadToS3 } from "../utils/uploadToS3.js";
 import { getFromS3 } from "../utils/getFromS3.js";
 import { deductCredits } from "../utils/deductCredits.js";
+import { checkAgentLimit } from "../config/agentlimit.js";
 
 export const visionAgent=async(state) => {
     try {
+
+      await checkAgentLimit(state.userId, "image")
+
         
     const llm=await getModel("image")
     const res = await llm.invoke(`
@@ -42,25 +46,11 @@ return {
 ⏳ Link expires in 10 minutes.`
 }
         
-   } catch (err) {
-  let errorDetail = err.message;
-
-  if (err.response?.data) {
-    const data = err.response.data;
-    if (Buffer.isBuffer(data)) {
-      errorDetail = data.toString("utf-8");
-    } else if (typeof data === "object") {
-      errorDetail = JSON.stringify(data);
-    } else {
-      errorDetail = String(data);
-    }
+   } catch (error) {
+ return {
+        ...state,
+        aiResponse:error?.data?.message || "failed to generate image "
+    
   }
-
-  console.error("Vision Agent Error:", errorDetail);
-
-  return {
-    ...state,
-    aiResponse: `⚠️ Sorry, I couldn't generate the image right now. The image service returned an error. Please try again in a moment.`
-  };
 }
 }

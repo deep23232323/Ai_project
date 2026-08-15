@@ -10,7 +10,7 @@ const LoadingAnimation = () => {
       setLabelIndex((prev) => (prev + 1) % Thinking_Labels.length);
     }, 1800);
     return () => clearInterval(interval);
-  }, []);
+  });
 
   const label = Thinking_Labels[labelIndex];
 
