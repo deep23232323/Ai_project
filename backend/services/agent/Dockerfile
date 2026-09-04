@@ -1,11 +1,18 @@
-FROM node:22
+FROM node
 
 WORKDIR /app
 
-COPY services/agent/package*.json ./
+COPY package*.json ./
 RUN npm install
 
-COPY services/agent/ ./
-COPY shared/ ./shared/
+COPY ./services/agent/package*.json ./services/agent/
+RUN cd services/agent && npm install
 
-CMD ["node", "index.js"]
+COPY services/agent ./services/agent
+COPY shared ./shared
+
+WORKDIR /app/services/agent
+
+EXPOSE 8003
+
+CMD ["npm", "start"]

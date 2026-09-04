@@ -1,11 +1,18 @@
-FROM node:22
+FROM node
 
 WORKDIR /app
 
-COPY services/chat/package*.json ./
+COPY package*.json ./
 RUN npm install
 
-COPY services/chat/ ./
-COPY shared/ ./shared/
+COPY ./services/chat/package*.json ./services/chat/
+RUN cd services/chat && npm install
 
-CMD ["node", "index.js"]
+COPY services/chat ./services/chat
+COPY shared ./shared
+
+WORKDIR /app/services/chat
+
+EXPOSE 8002
+
+CMD ["npm", "start"]

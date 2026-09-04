@@ -5,13 +5,14 @@ import {
   ImageIcon,
   MessageSquare,
   Mic,
+  MicOff,
   Paperclip,
   Presentation,
   Send,
   X,
   Zap,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import sendMessage from "../features/sendMessage";
 import { useDispatch, useSelector } from "react-redux";
 import { addMessages, setArtifacts, setIsloading } from "../redux/messageSlice";
@@ -29,8 +30,57 @@ function ChatInput() {
   const { selectedConversation } = useSelector((state) => state.conversation);
   const [selectedFile, setSelectedFile] = useState(null);
   const {isLoading} = useSelector(state => state.message)
+  const [listening, setListening] = useState(false)
+  const recognitionRef = useRef(null)
   const fileRef = useRef(null);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "en-US";
+    recognition.interimResults = true;
+    recognition.continuous = true;
+    recognition.onerror = (event) => {
+  console.log("SpeechRecognition error:", event.error)
+}
+
+    recognition.onresult = (event) => {
+      let transcript = ""
+
+      for (let index = event.resultIndex; index < event.results.length; index++){
+          
+        transcript += event.results[index][0].transcript
+      }
+      console.log("transcipt",transcript)
+      setValuee(transcript)
+    };
+
+    recognition.onend=()=>{
+      setListening(false)
+    }
+
+    recognitionRef.current = recognition
+}, []);
+
+
+const togglemic = () => {
+  console.log("toggle clicked", listening)
+  if(!recognitionRef.current){
+    alert("speech recognition not supported")
+    return
+}
+  if(listening){
+    recognitionRef.current.stop()
+    setListening(false)
+  }else{
+    recognitionRef.current.start()
+    setListening(true)
+  }
+}
 
   const handleSendMessage = async () => {
     dispatch(setIsloading(true))
@@ -252,8 +302,9 @@ function ChatInput() {
     hover:text-slate-400 hover:bg-white/5
     border border-transparent hover:border-white/6
     transition-all duration-150 bg-transparent cursor-pointer"
+            onClick={togglemic}
             >
-              <Mic size={16} />
+              {listening ?<Mic size={16} /> : <MicOff size={16}/> }
             </button>
           </div>
           <button

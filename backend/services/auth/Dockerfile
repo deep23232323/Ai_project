@@ -1,11 +1,18 @@
-FROM node:22
+FROM node
 
 WORKDIR /app
 
-COPY services/agent/package*.json ./
+COPY package*.json ./
 RUN npm install
 
-COPY services/auth/ ./
-COPY shared/ ./shared/
+COPY ./services/auth/package*.json ./services/auth/
+RUN cd services/auth && npm install
 
-CMD ["node", "index.js"]
+COPY services/auth ./services/auth
+COPY shared ./shared
+
+WORKDIR /app/services/auth
+
+EXPOSE 8001
+
+CMD ["npm", "start"]

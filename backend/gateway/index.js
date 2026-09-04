@@ -8,7 +8,7 @@ import protect from "./middleware/auth.middleware.js";
 import { getCurrentUser } from "./controller/user.controller.js";
 import { proxyWithHeader } from "./utils/proxyWithHeader.js";
 import morgan from "morgan"
-const port = process.env.port
+const port = process.env.PORT
 const app = express()
 app.use(express.json())
 app.use(cors({

@@ -1,11 +1,18 @@
-FROM node:22
+FROM node
 
 WORKDIR /app
 
-COPY gateway/package*.json ./
+COPY package*.json ./
 RUN npm install
 
-COPY gateway/ ./
-COPY shared/ ./shared/
+COPY ./gateway/package*.json ./gateway/
+RUN cd gateway && npm install
 
-CMD ["node", "index.js"]
+COPY gateway ./gateway
+COPY shared ./shared
+
+WORKDIR /app/gateway
+
+EXPOSE 8000
+
+CMD ["npm", "start"]

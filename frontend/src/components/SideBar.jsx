@@ -70,7 +70,7 @@ const SideBar = () => {
           className="flex-1 overflow-y-auto px-2.5 pb-2 scrollbar-none
         [&::-webkit-scrollbar]:hidden pt-5"
         >
-          {conversations.map((conv) => {
+          {conversations?.map((conv) => {
             const isActive = selectedConversation?._id == conv?._id;
             return (
               <div
@@ -156,7 +156,7 @@ const SideBar = () => {
               <X />
             </button>
             <span className="text-[16px] font-semibold text-slate-100 tracking-tight flex-1">
-              SadikAI
+              Multiverse AI
             </span>
             <span
               className="text-[10px] font-medium text-indigo-400 bg-indigo-500/10 border
@@ -188,7 +188,7 @@ const SideBar = () => {
           </div>
 
           {/* conversations div */}
-          {conversations.length == 0 ? (
+          {conversations?.length == 0 ? (
             <div
               className="px-5 pt-4 pb-1.5 text-[10.5px] font-semibold uppercase tracking-widest
           text-slate-600"
@@ -210,7 +210,7 @@ const SideBar = () => {
             className="flex-1 overflow-y-auto px-2.5 pb-2 scrollbar-none
         [&::-webkit-scrollbar]:hidden"
           >
-            {conversations.map((conv, i) => {
+            {conversations?.map((conv, i) => {
               const isActive = selectedConversation?._id == conv?._id;
               return (
                 <div
