@@ -1,6 +1,7 @@
 import dotenv from "dotenv"
 dotenv.config()
 import express from "express"
+
 import connect from "./config/db.js"
 import router from "./routes/auth.route.js"
 const port = process.env.PORT
