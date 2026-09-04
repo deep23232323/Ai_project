@@ -48,8 +48,8 @@ export const login = async (req, res) => {
 
     res.cookie("session", sessionId, {
       httpOnly: true,
-      secure: false,
-      sameSite: "strict",
+      secure: true, // required for HTTPS + sameSite: "none"
+      sameSite: "none", // required for cross-origin cookies
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -119,24 +119,23 @@ export const deductCredits = async (req, res) => {
       coding: 10,
       pdf: 10,
       ppt: 10,
-      vision: 10
+      vision: 10,
     };
 
-    const user = await User.findById(userId)
+    const user = await User.findById(userId);
 
-    if(!user){
-      return res.status(400).json({message:"user not found"})
+    if (!user) {
+      return res.status(400).json({ message: "user not found" });
     }
 
-    const requiredCredits = COST[agent] || 1
+    const requiredCredits = COST[agent] || 1;
 
-    if(user.credits < requiredCredits){
-        return res.status(400).json({message:"not enough credits"})
-
+    if (user.credits < requiredCredits) {
+      return res.status(400).json({ message: "not enough credits" });
     }
 
-    user.credits -= requiredCredits
-    await user.save()
+    user.credits -= requiredCredits;
+    await user.save();
 
     const sessionId = await redis.get(`user-session-${user?._id}`);
     await redis.set(
@@ -155,12 +154,7 @@ export const deductCredits = async (req, res) => {
       7 * 24 * 60 * 60,
     );
 
-    return res.status(200).json({ success: true, credits:user.credits });
-  
-
-
-
-
+    return res.status(200).json({ success: true, credits: user.credits });
   } catch (error) {
     return res
       .status(500)
