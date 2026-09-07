@@ -6,12 +6,12 @@
 
 A full-stack AI workspace like ChatGPT — but combined with document generation, image creation, real-time web search, and an autonomous coding agent, all in a single seamless experience.
 
-[![Made with React.js](https://img.shields.io/badge/Frontend-React.js-black?logo=next.js)](https://reactjs.org/)
+[![Made with React.js](https://img.shields.io/badge/Frontend-React.js-black?logo=react&logoColor=61DAFB)](https://reactjs.org/)
 [![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#contributing)
 
-[Live Demo](https://multiverseai-self.vercel.app/) · [Report Bug](#) · [Request Feature](#)
+[Live Demo](https://multiverseai-self.vercel.app/) 
 
 </div>
 
@@ -30,8 +30,8 @@ A full-stack AI workspace like ChatGPT — but combined with document generation
 - 🔎 **Web Search** — Real-time, up-to-date answers pulled live from the web
 - 🤖 **Coding Agent** — An autonomous agent that can write, explain, and debug code
 - 🔐 **Secure Authentication** — Protected user sessions and API access
-- 💳 **Billing** — Subscription/payment handling (🧪 currently in test mode — no live transactions yet)
-- ⚡ **Fast & Responsive UI** — Built with Next.js for a smooth, modern experience
+- 💳 **Billing** — Subscription/payment handling via Razorpay (🧪 currently in test mode — no live transactions yet)
+- ⚡ **Fast & Responsive UI** — Built with React for a smooth, modern experience
 
 ## 🖼️ Screenshots
 
@@ -60,9 +60,14 @@ A full-stack AI workspace like ChatGPT — but combined with document generation
 |---|---|
 | **Frontend** | React |
 | **Backend** | Node.js / Express — Microservices architecture |
-| **Database** |  MongoDB  |
-| **AI/LLM Integration** |  OpenAI API / Groq API / blackbox API / |
-| **Deployment** | Vercel / Render | 
+| **Database** | MongoDB |
+| **Cache / Queue** | Redis (Upstash) |
+| **AI/LLM Integration** | OpenAI API / Groq API / OpenRouter API |
+| **Web Search** | Tavily API |
+| **Vector DB** | Qdrant |
+| **File Storage** | AWS S3 |
+| **Payments** | Razorpay (test mode) |
+| **Deployment** | Vercel / Render |
 
 ## 🧩 Architecture
 
@@ -87,21 +92,21 @@ Multiverse AI's backend follows a **microservices architecture**, fronted by a s
 │  Sessions     ││ PDF, image    ││  automation)  ││                │
 │               ││ generation    ││               ││                │
 └───────────────┘└───────────────┘└───────────────┘└───────────────┘
-                                                ```
+```
 
 - **API Gateway** — single entry point for the frontend; handles routing, and can also manage cross-cutting concerns like rate limiting and auth verification
 - **Auth Service** — user registration, login, JWT issuance/verification, session management
 - **Chat Service** — core conversational AI, plus PPT/PDF/image generation and web search
-- **Agent Service** — the autonomous coding agent and related tool-use workflows
-- **Billing Service** — subscription/payment handling — ⚠️ **currently in test mode**, not yet processing real transactions
+- **Agent Service** — the autonomous coding agent and related tool-use workflows (Groq, Google, OpenRouter LLMs, Tavily web search, Qdrant vector search, S3 file storage)
+- **Billing Service** — subscription/payment handling via Razorpay — ⚠️ **currently in test mode**, not yet processing real transactions
 
-Each service can be developed, deployed, and scaled independently.
+Each service can be developed, deployed, and scaled independently, and communicate through Redis (Upstash) for caching/shared state.
 
 ## 📂 Project Structure
 
 ```
 multiverse-ai/
-├── frontend/                  # Next.js client application
+├── frontend/                  # React client application
 │   ├── components/
 │   ├── pages/ or app/
 │   ├── public/
@@ -112,7 +117,7 @@ multiverse-ai/
 │   │   ├── auth-service/        # Authentication & session management
 │   │   ├── chat-service/        # Chat, PPT/PDF/image generation, web search
 │   │   ├── agent-service/       # Coding agent
-│   │   └── billing-service/     # Billing (🧪 test mode)
+│   │   └── billing-service/     # Billing via Razorpay (🧪 test mode)
 │   └── package.json
 ├── .gitignore
 └── README.md
@@ -215,7 +220,7 @@ REDIS_URL=
 **Chat Service `.env`**
 ```env
 MONGODB_URI=
-PORT=8001
+PORT=8002
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 REDIS_URL=
@@ -230,7 +235,7 @@ GOOGLE_API_KEY=
 AUTH_SERVICE=
 CHAT_SERVICE=
 TAVILY_API_KEY=
-OPENROUTER_API_KEY=]
+OPENROUTER_API_KEY=
 AWS_REGION=
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_KEY=
@@ -238,7 +243,7 @@ AWS_BUCKET_NAME=
 POLLEN_API_KEY=
 HF_API_KEY=
 QDRANT_API_KEY=
-QDRANT_URL==
+QDRANT_URL=
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 REDIS_URL=
@@ -246,19 +251,18 @@ REDIS_URL=
 
 **Billing Service `.env`** — 🧪 *test mode*
 ```env
-PORT=5004
-BILLING_PROVIDER_MODE=test
-BILLING_PROVIDER_TEST_KEY=your_test_mode_api_key
-```
-> Billing is currently running against a test/sandbox key only. No real transactions are processed yet — switch `BILLING_PROVIDER_MODE` to `live` and swap in production keys once ready to go live.
-
-**Frontend `.env`**
-```env
 MONGODB_URI=
 PORT=8004
 RAZORPAY_KEY_ID=
 RAZORPAY_KEY_SECRET=
 AUTH_SERVICE=
+```
+> Billing is currently running against Razorpay's test/sandbox keys only. No real transactions are processed yet — swap in Razorpay live keys once ready to go live.
+
+**Frontend `.env`**
+```env
+VITE_API_BASE_URL=
+VITE_APP_NAME=Multiverse AI
 ```
 
 ## 🧭 Roadmap
