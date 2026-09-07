@@ -69,24 +69,24 @@ A full-stack AI workspace like ChatGPT — but combined with document generation
 Multiverse AI's backend follows a **microservices architecture**, fronted by a single API Gateway that routes requests to independent services.
 
 ```
-                                                                    ┌────────────────────┐
-                                                                    │   React.js Frontend │
-                                                                    └──────────┬──────────┘
-                                                                               │
-                                                                               ▼
-                                                                      ┌────────────────────┐
-                                                                      │    API Gateway      │
-                                                                      └──────────┬──────────┘
-                                                                                 │
-                                                      ┌───────────────┬─────────┴─────────┬───────────────┐
-                                                      ▼               ▼                   ▼               ▼
-                                                ┌───────────────┐┌───────────────┐┌───────────────┐┌───────────────┐
-                                                │  Auth Service ││ Chat Service  ││ Agent Service ││ Billing Service│
-                                                │               ││               ││ (coding agent,││  🧪 Test Mode  │
-                                                │  Login/JWT/   ││ Chat, PPT,    ││  web search,  ││  (not live yet)│
-                                                │  Sessions     ││ PDF, image    ││  automation)  ││                │
-                                                │               ││ generation    ││               ││                │
-                                                └───────────────┘└───────────────┘└───────────────┘└───────────────┘
+                    ┌────────────────────┐
+                    │   React.js Frontend │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                      ┌────────────────────┐
+                      │    API Gateway      │
+                      └──────────┬──────────┘
+                                 │
+      ┌───────────────┬─────────┴─────────┬───────────────┐
+      ▼               ▼                   ▼               ▼
+┌───────────────┐┌───────────────┐┌───────────────┐┌───────────────┐
+│  Auth Service ││ Chat Service  ││ Agent Service ││ Billing Service│
+│               ││               ││ (coding agent,││  🧪 Test Mode  │
+│  Login/JWT/   ││ Chat, PPT,    ││  web search,  ││  (not live yet)│
+│  Sessions     ││ PDF, image    ││  automation)  ││                │
+│               ││ generation    ││               ││                │
+└───────────────┘└───────────────┘└───────────────┘└───────────────┘
                                                 ```
 
 - **API Gateway** — single entry point for the frontend; handles routing, and can also manage cross-cutting concerns like rate limiting and auth verification
