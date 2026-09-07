@@ -35,18 +35,24 @@ A full-stack AI workspace like ChatGPT — but combined with document generation
 
 ## 🖼️ Screenshots
 
-<div align="center">
-
-**Dashboard**
-<img src="./images/dashboard.png" width="800" alt="Multiverse AI Dashboard" />
-
-**Artifact / Generation View**
-<img src="./images/artifact.png" width="800" alt="Multiverse AI Artifact View" />
-
-**Billing (Test Mode)**
-<img src="./images/Billing.png" width="800" alt="Multiverse AI Billing Page" />
-
-</div>
+<table>
+  <tr>
+    <td align="center" colspan="2">
+      <img src="./images/dashboard.png" width="80%" alt="Multiverse AI Dashboard" />
+      <p align="center"><b>Dashboard</b></p>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="./images/artifact.png" width="80%" alt="Multiverse AI Artifact View" />
+      <p align="center"><b>Artifact / Generation View</b></p>
+    </td>
+    <td align="center" width="50%">
+      <img src="./images/Billing.png" width="80%" alt="Multiverse AI Billing Page" />
+      <p align="center"><b>Billing (Test Mode)</b></p>
+    </td>
+  </tr>
+</table>
 
 ## 🛠️ Tech Stack
 
@@ -63,25 +69,25 @@ A full-stack AI workspace like ChatGPT — but combined with document generation
 Multiverse AI's backend follows a **microservices architecture**, fronted by a single API Gateway that routes requests to independent services.
 
 ```
-                        ┌────────────────────┐
-                        │   Next.js Frontend  │
-                        └──────────┬──────────┘
-                                   │
-                                   ▼
-                        ┌────────────────────┐
-                        │    API Gateway      │
-                        └──────────┬──────────┘
-                                   │
-        ┌───────────────┬─────────┴─────────┬───────────────┐
-        ▼               ▼                   ▼               ▼
-┌───────────────┐┌───────────────┐┌───────────────┐┌───────────────┐
-│  Auth Service ││ Chat Service  ││ Agent Service ││ Billing Service│
-│               ││               ││ (coding agent,││  🧪 Test Mode  │
-│  Login/JWT/   ││ Chat, PPT,    ││  web search,  ││  (not live yet)│
-│  Sessions     ││ PDF, image    ││  automation)  ││                │
-│               ││ generation    ││               ││                │
-└───────────────┘└───────────────┘└───────────────┘└───────────────┘
-```
+                                                                    ┌────────────────────┐
+                                                                    │   React.js Frontend │
+                                                                    └──────────┬──────────┘
+                                                                               │
+                                                                               ▼
+                                                                      ┌────────────────────┐
+                                                                      │    API Gateway      │
+                                                                      └──────────┬──────────┘
+                                                                                 │
+                                                      ┌───────────────┬─────────┴─────────┬───────────────┐
+                                                      ▼               ▼                   ▼               ▼
+                                                ┌───────────────┐┌───────────────┐┌───────────────┐┌───────────────┐
+                                                │  Auth Service ││ Chat Service  ││ Agent Service ││ Billing Service│
+                                                │               ││               ││ (coding agent,││  🧪 Test Mode  │
+                                                │  Login/JWT/   ││ Chat, PPT,    ││  web search,  ││  (not live yet)│
+                                                │  Sessions     ││ PDF, image    ││  automation)  ││                │
+                                                │               ││ generation    ││               ││                │
+                                                └───────────────┘└───────────────┘└───────────────┘└───────────────┘
+                                                ```
 
 - **API Gateway** — single entry point for the frontend; handles routing, and can also manage cross-cutting concerns like rate limiting and auth verification
 - **Auth Service** — user registration, login, JWT issuance/verification, session management
