@@ -44,7 +44,7 @@ A full-stack AI workspace like ChatGPT — but combined with document generation
 <img src="./images/artifact.png" width="800" alt="Multiverse AI Artifact View" />
 
 **Billing (Test Mode)**
-<img src="./images/billing.png" width="800" alt="Multiverse AI Billing Page" />
+<img src="./images/Billing.png" width="800" alt="Multiverse AI Billing Page" />
 
 </div>
 
@@ -52,12 +52,11 @@ A full-stack AI workspace like ChatGPT — but combined with document generation
 
 | Layer | Technology |
 |---|---|
-| **Frontend** | React / Next.js |
+| **Frontend** | React |
 | **Backend** | Node.js / Express — Microservices architecture |
-| **Database** | *(e.g. MongoDB / PostgreSQL — update this)* |
-| **AI/LLM Integration** | *(e.g. OpenAI API / Anthropic API — update this)* |
-| **Image Generation** | *(e.g. DALL·E / Stable Diffusion API — update this)* |
-| **Deployment** | Vercel |
+| **Database** |  MongoDB  |
+| **AI/LLM Integration** |  OpenAI API / Groq API / blackbox API / |
+| **Deployment** | Vercel / Render | 
 
 ## 🧩 Architecture
 
@@ -187,33 +186,56 @@ multiverse-ai/
 
 **Gateway `.env`**
 ```env
-PORT=5000
-AUTH_SERVICE_URL=http://localhost:5001
-CHAT_SERVICE_URL=http://localhost:5002
-AGENT_SERVICE_URL=http://localhost:5003
-BILLING_SERVICE_URL=http://localhost:5004
+PORT=8000
+AUTH_SERVICE_URL=
+CHAT_SERVICE_URL=
+AGENT_SERVICE_URL=
+BILLING_SERVICE_URL=
+FRONTEND_URL=
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+REDIS_URL=
 ```
 
 **Auth Service `.env`**
 ```env
-PORT=5001
-DATABASE_URL=your_database_connection_string
-JWT_SECRET=your_jwt_secret
+MONGODB_URI=
+PORT=8001
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+REDIS_URL=
 ```
 
 **Chat Service `.env`**
 ```env
-PORT=5002
-DATABASE_URL=your_database_connection_string
-AI_API_KEY=your_ai_provider_api_key
-IMAGE_GEN_API_KEY=your_image_api_key
-SEARCH_API_KEY=your_web_search_api_key
+MONGODB_URI=
+PORT=8001
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+REDIS_URL=
 ```
 
 **Agent Service `.env`**
 ```env
-PORT=5003
-AI_API_KEY=your_ai_provider_api_key
+MONGODB_URI=
+PORT=8003
+GROQ_API_KEY=
+GOOGLE_API_KEY=
+AUTH_SERVICE=
+CHAT_SERVICE=
+TAVILY_API_KEY=
+OPENROUTER_API_KEY=]
+AWS_REGION=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_KEY=
+AWS_BUCKET_NAME=
+POLLEN_API_KEY=
+HF_API_KEY=
+QDRANT_API_KEY=
+QDRANT_URL==
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+REDIS_URL=
 ```
 
 **Billing Service `.env`** — 🧪 *test mode*
@@ -226,8 +248,11 @@ BILLING_PROVIDER_TEST_KEY=your_test_mode_api_key
 
 **Frontend `.env`**
 ```env
-NEXT_PUBLIC_API_BASE_URL=http://localhost:5000
-NEXT_PUBLIC_APP_NAME=Multiverse AI
+MONGODB_URI=
+PORT=8004
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
+AUTH_SERVICE=
 ```
 
 ## 🧭 Roadmap
