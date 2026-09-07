@@ -184,7 +184,7 @@ const togglemic = () => {
   return (
     <div className="w-full overflow-hidden px-3 md:px-5 py-4 border-t border-white/6 bg-[#0d0f14]">
       <div className="flex flex-col gap-2 bg-white/3 border border-white/[0.07] rounded-2xl px-4 pt-3.5 pb-3">
-        <div className="flex w-[80%] gap-2 pr-2 flex-wrap">
+        <div className="flex w-[80%]  gap-2 pr-2 flex-wrap">
           {agents.map((agent, i) => {
             const isActive = selectedAgent === agent.label;
             const Icon = agent.icon;
