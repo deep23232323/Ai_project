@@ -87,10 +87,10 @@ Multiverse AI's backend follows a **microservices architecture**, fronted by a s
       ▼               ▼                   ▼               ▼
 ┌───────────────┐┌───────────────┐┌───────────────┐┌───────────────┐
 │  Auth Service ││ Chat Service  ││ Agent Service ││ Billing Service│
-│               ││               ││ (coding agent,││  🧪 Test Mode  │
-│  Login/JWT/   ││ Chat, PPT,    ││  web search,  ││  (not live yet)│
-│  Sessions     ││ PDF, image    ││  automation)  ││                │
-│               ││ generation    ││               ││                │
+│               ││               ││ (coding agent,││ 🧪 Test Mode  │
+│  Login/JWT/   ││ Chat,         ││  web search,  ││  (not live yet)│
+│  Sessions     ││ conversation  ││  chat agent,  ││                │
+│               ││               ││ppt, pdf agent)││                │
 └───────────────┘└───────────────┘└───────────────┘└───────────────┘
 ```
 
