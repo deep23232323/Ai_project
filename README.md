@@ -114,9 +114,9 @@ multiverse-ai/
 ├── backend/
 │   ├── gateway/                # API Gateway — routes requests to services
 │   ├── services/
-│   │   ├── auth-service/        # Authentication & session management
-│   │   ├── chat-service/        # Chat, PPT/PDF/image generation, web search
-│   │   ├── agent-service/       # Coding agent
+│   │   ├── auth-service/        # Authentication 
+│   │   ├── chat-service/        # Chat, Conversation
+│   │   ├── agent-service/       # Coding, Chat, ppt, Pdf, coding, web search Agent
 │   │   └── billing-service/     # Billing via Razorpay (🧪 test mode)
 │   └── package.json
 ├── .gitignore
