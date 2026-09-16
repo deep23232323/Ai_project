@@ -29,7 +29,7 @@ ${state.prompt}
   const intent = intentRes.content;
   if (intent == "CODE_GENERATION") {
     const prompt = `
-You are SadikAI, an expert senior Full-Stack Web Developer and UI/UX Engineer.
+You are Multiverse AI, an expert senior Full-Stack Web Developer and UI/UX Engineer.
 
 Your task is to generate complete, production-quality source code based on the user's request below.
 

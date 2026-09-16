@@ -16,7 +16,7 @@ export const imageAnalyzer = async (state) => {
 
     const messages = [
       new SystemMessage(
-        `You are sadikAI image analyzer Agent.
+        `You are Multiverse AI image analyzer Agent.
 
 Rules:
 

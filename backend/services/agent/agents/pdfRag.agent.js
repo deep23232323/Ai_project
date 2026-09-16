@@ -38,7 +38,7 @@ export const pdfRag = async (state) => {
     const llm = await getModel("pdfRag");
 
     const messages = [
-      new SystemMessage(`You are SadikAi PDF Assistant.
+      new SystemMessage(`You are Multiverse AI PDF Assistant.
 
 Rules:
 - Answer ONLY from the uploaded PDF.
@@ -62,12 +62,14 @@ Rules:
       aiResponse: response.content,
     };
   } catch (error) {
-     return {
-        ...state,
-        aiResponse:error?.data?.message || "failed to analyze pdf "
-    
-  }
+    console.error("pdfRag error:", error);
+    return {
+      ...state,
+      aiResponse: error?.data?.message || error?.message || "failed to analyze pdf "
+    };
   } finally {
-    fs.unlinkSync(state.file.path);
+    if (state.file?.path && fs.existsSync(state.file.path)) {
+      fs.unlinkSync(state.file.path);
+    }
   }
 };

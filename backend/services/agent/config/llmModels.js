@@ -14,7 +14,7 @@ const groq = new ChatGroq({
 });
 
 const gemini = new ChatGoogleGenerativeAI({
-  model: "gemini-3.6-flash", // or "gemini-3.5-flash-lite" for a cheaper/faster option
+  model: "gemini-1.5-flash",
   temperature: 0,
   maxRetries: 2,
 });
