@@ -4,14 +4,14 @@
 
 ### One platform. Every AI superpower.
 
-A full-stack AI workspace like ChatGPT — but combined with document generation, image creation, real-time web search, and an autonomous coding agent, all in a single seamless experience.
+A full-stack AI workspace called MultiverseAI — but combined with document generation, image creation, real-time web search, document intelligence (RAG), and an autonomous coding agent, all in a single seamless experience.
 
 [![Made with React.js](https://img.shields.io/badge/Frontend-React.js-black?logo=react&logoColor=61DAFB)](https://reactjs.org/)
 [![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#contributing)
 
-[Live Demo](https://multiverseai-self.vercel.app/) 
+[Live Demo](https://multiverseai-self.vercel.app/)
 
 </div>
 
@@ -19,7 +19,9 @@ A full-stack AI workspace like ChatGPT — but combined with document generation
 
 ## ✨ Overview
 
-**Multiverse AI** brings together the tools people usually need five different apps for — chat, document creation, image generation, web search, and coding help — into one unified, ChatGPT-style interface. Instead of switching tabs, users switch *modes* within the same conversation.
+**Multiverse AI** brings together the tools people usually need five different apps for — chat, document generation, image creation, web search, document intelligence, and coding help — into one unified, ChatGPT-style interface. Instead of switching tabs, users switch *modes* within the same conversation.
+
+With the addition of **Retrieval-Augmented Generation (RAG)**, users can now upload their own documents and get grounded, context-aware answers drawn directly from that content via semantic search — instead of relying on the model's general knowledge alone.
 
 ## 🚀 Features
 
@@ -28,6 +30,7 @@ A full-stack AI workspace like ChatGPT — but combined with document generation
 - 📄 **PDF Generator** — Generate structured, styled PDF documents from text or data
 - 🎨 **Image Generator** — Create AI-generated images from natural language prompts
 - 🔎 **Web Search** — Real-time, up-to-date answers pulled live from the web
+- 📚 **RAG / Document Intelligence** — Upload documents, get them parsed and chunked, embedded, and stored in a vector database for accurate semantic search and grounded Q&A
 - 🤖 **Coding Agent** — An autonomous agent that can write, explain, and debug code
 - 🔐 **Secure Authentication** — Protected user sessions and API access
 - 💳 **Billing** — Subscription/payment handling via Razorpay (🧪 currently in test mode — no live transactions yet)
@@ -64,7 +67,9 @@ A full-stack AI workspace like ChatGPT — but combined with document generation
 | **Cache / Queue** | Redis (Upstash) |
 | **AI/LLM Integration** | OpenAI API / Groq API / OpenRouter API |
 | **Web Search** | Tavily API |
-| **Vector DB** | Qdrant |
+| **Document Parsing** | pdf-parse  |
+| **Embeddings** | LangChain Vector Embeddings|
+| **Vector DB** | Qdrant (semantic search / RAG retrieval) |
 | **File Storage** | AWS S3 |
 | **Payments** | Razorpay (test mode) |
 | **Deployment** | Vercel / Render |
@@ -85,22 +90,51 @@ Multiverse AI's backend follows a **microservices architecture**, fronted by a s
                                  │
       ┌───────────────┬─────────┴─────────┬───────────────┐
       ▼               ▼                   ▼               ▼
-┌───────────────┐┌───────────────┐┌───────────────┐┌───────────────┐
-│  Auth Service ││ Chat Service  ││ Agent Service ││ Billing Service│
-│               ││               ││ (coding agent,││ 🧪 Test Mode  │
-│  Login/JWT/   ││ Chat,         ││  web search,  ││  (not live yet)│
-│  Sessions     ││ conversation  ││  chat agent,  ││                │
-│               ││               ││ppt, pdf agent)││                │
-└───────────────┘└───────────────┘└───────────────┘└───────────────┘
+┌───────────────┐┌───────────────┐┌────────────────────────┐┌───────────────┐
+│  Auth Service ││ Chat Service  ││    Agent Service        ││ Billing Service│
+│               ││               ││ (coding agent, web      ││ 🧪 Test Mode  │
+│  Login/JWT/   ││ Chat,         ││  search, chat agent,    ││  (not live yet)│
+│  Sessions     ││ conversation  ││  ppt/pdf agent, RAG:     ││                │
+│               ││               ││  parse → chunk → embed  ││                │
+│               ││               ││  → Qdrant → retrieve)   ││                │
+└───────────────┘└───────────────┘└────────────┬────────────┘└───────────────┘
+                                                │
+                                                ▼
+                                     ┌────────────────────┐
+                                     │   Qdrant Vector DB  │
+                                     │  (document chunks + │
+                                     │   embeddings store) │
+                                     └────────────────────┘
 ```
 
 - **API Gateway** — single entry point for the frontend; handles routing, and can also manage cross-cutting concerns like rate limiting and auth verification
 - **Auth Service** — user registration, login, JWT issuance/verification, session management
 - **Chat Service** — core conversational AI, plus PPT/PDF/image generation and web search
-- **Agent Service** — the autonomous coding agent and related tool-use workflows (Groq, Google, OpenRouter LLMs, Tavily web search, Qdrant vector search, S3 file storage)
+- **Agent Service** — the autonomous coding agent, RAG pipeline, and related tool-use workflows (Groq, Google, OpenRouter LLMs, Tavily web search, Qdrant vector search, S3 file storage)
 - **Billing Service** — subscription/payment handling via Razorpay — ⚠️ **currently in test mode**, not yet processing real transactions
 
 Each service can be developed, deployed, and scaled independently, and communicate through Redis (Upstash) for caching/shared state.
+
+## 📚 RAG / Document Intelligence
+
+Multiverse AI supports **Retrieval-Augmented Generation**, letting users upload their own documents and query them with grounded, source-aware answers instead of relying solely on the LLM's parametric knowledge.
+
+**Pipeline:**
+
+1. **Upload** — User uploads a document (PDF, DOCX, TXT) through the frontend; the file is stored in **AWS S3** and a reference is saved in MongoDB.
+2. **Parse** — The Agent Service extracts raw text from the document, handling different file formats.
+3. **Chunk** — Extracted text is split into overlapping chunks sized for the embedding model, preserving semantic continuity across chunk boundaries.
+4. **Embed** — Each chunk is converted into a vector embedding via the HuggingFace / Google embedding API.
+5. **Store** — Embeddings, along with metadata (document ID, chunk text, page/section reference), are upserted into **Qdrant**.
+6. **Retrieve** — On a user query, the query is embedded the same way, and Qdrant performs a similarity search to fetch the most relevant chunks.
+7. **Generate** — Retrieved chunks are injected into the LLM prompt as context, and the model generates an answer grounded in the uploaded document rather than general knowledge alone.
+
+This enables use cases like:
+- Asking questions directly about an uploaded report, contract, or research paper
+- Summarizing long documents accurately without hallucination
+- Cross-referencing multiple uploaded documents in a single conversation
+
+> 🧭 Chunking strategy, embedding model, and top-k retrieval settings are configurable in the Agent Service and can be tuned for accuracy vs. latency trade-offs.
 
 ## 📂 Project Structure
 
@@ -114,9 +148,10 @@ multiverse-ai/
 ├── backend/
 │   ├── gateway/                # API Gateway — routes requests to services
 │   ├── services/
-│   │   ├── auth-service/        # Authentication 
+│   │   ├── auth-service/        # Authentication
 │   │   ├── chat-service/        # Chat, Conversation
-│   │   ├── agent-service/       # Coding, Chat, ppt, Pdf, coding, web search Agent
+│   │   ├── agent-service/       # Coding, Chat, ppt, pdf, web search agent + RAG pipeline
+│   │   │   ├── rag/             # Document parsing, chunking, embedding, retrieval
 │   │   └── billing-service/     # Billing via Razorpay (🧪 test mode)
 │   └── package.json
 ├── .gitignore
@@ -176,7 +211,7 @@ multiverse-ai/
    # Chat service
    cd backend/services/chat-service && npm run dev
 
-   # Agent service
+   # Agent service (includes RAG pipeline)
    cd backend/services/agent-service && npm run dev
 
    # Billing service (test mode)
@@ -226,7 +261,7 @@ UPSTASH_REDIS_REST_TOKEN=
 REDIS_URL=
 ```
 
-**Agent Service `.env`**
+**Agent Service `.env`** — includes RAG pipeline config
 ```env
 MONGODB_URI=
 PORT=8003
@@ -244,6 +279,11 @@ POLLEN_API_KEY=
 HF_API_KEY=
 QDRANT_API_KEY=
 QDRANT_URL=
+QDRANT_COLLECTION_NAME=
+EMBEDDING_MODEL=
+CHUNK_SIZE=
+CHUNK_OVERLAP=
+RETRIEVAL_TOP_K=
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 REDIS_URL=
@@ -269,6 +309,7 @@ VITE_APP_NAME=Multiverse AI
 
 - [ ] Move billing service from test mode to live payments
 - [ ] Docker Compose setup to spin up gateway + all services together
+- [ ] Multi-document RAG with cross-document citation
 - [ ] Voice input/output support
 - [ ] Multi-user collaboration on documents
 - [ ] Plugin system for custom AI tools
@@ -290,9 +331,9 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## 📬 Contact
 
-**Your Name** — your.email@example.com
+**Your Name** — deep8686385@gmail.com
 
-Project Link: [https://github.com/your-username/multiverse-ai](https://github.com/your-username/multiverse-ai)
+Project Link: [https://github.com/deep23232323/Ai_project](https://github.com/deep23232323/Ai_project)
 
 ---
 
