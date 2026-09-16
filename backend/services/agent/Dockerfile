@@ -9,7 +9,7 @@ COPY ./services/agent/package*.json ./services/agent/
 RUN cd services/agent && npm install
 
 COPY services/agent ./services/agent
-COPY shared ./shared
+COPY services/auth/shared ./shared
 
 WORKDIR /app/services/agent
 

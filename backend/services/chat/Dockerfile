@@ -9,7 +9,7 @@ COPY ./services/chat/package*.json ./services/chat/
 RUN cd services/chat && npm install
 
 COPY services/chat ./services/chat
-COPY shared ./shared
+COPY services/auth/shared ./shared
 
 WORKDIR /app/services/chat
 

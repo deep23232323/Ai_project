@@ -47,11 +47,12 @@ export const login = async (req, res) => {
     );
 
     res.cookie("session", sessionId, {
-      httpOnly: true,
-      secure: true, // required for HTTPS + sameSite: "none"
-      sameSite: "none", // required for cross-origin cookies
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: "/"
+});
 
     return res.status(200).json(user);
   } catch (error) {

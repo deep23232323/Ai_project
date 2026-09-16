@@ -6,17 +6,20 @@ import { getModel } from "../config/llmModels.js";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { deductCredits } from "../utils/deductCredits.js";
 import { checkAgentLimit } from "../config/agentLimit.js";
+import { convertToProtocolEvent } from "@langchain/langgraph";
 
 export const pdfRag = async (state) => {
   try {
-
+    console.log("entered pdfRag agent")
     await checkAgentLimit(state.userId, "pdf")
 
     const buffer = fs.readFileSync(state.file.path);
+    console.log("pdf buffer read successfully")
     const pdf = new PDFParse({ data: buffer });
 
     const result = await pdf.getText();
     const text = result.text;
+    console.log(text)
 
     const splitter = new RecursiveCharacterTextSplitter({
       chunkSize: 1000,
@@ -25,7 +28,9 @@ export const pdfRag = async (state) => {
     const docs = await splitter.createDocuments([text]);
 
     const collectionName = `pdf-${Date.now()}`;
+    console.log("collectionName", collectionName)
     const store = await vectorStore(docs, collectionName);
+    console.log(store)
 
     const relevantDocument = await store.similaritySearch(state.prompt, 5);
     const context = relevantDocument.map((d) => d.pageContent).join("\n\n");

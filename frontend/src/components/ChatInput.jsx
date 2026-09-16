@@ -83,6 +83,7 @@ const togglemic = () => {
 }
 
   const handleSendMessage = async () => {
+    console.log("entered")
     dispatch(setIsloading(true))
     const message = valuee.trim();
 

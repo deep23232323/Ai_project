@@ -1,41 +1,77 @@
 services:
-  redis:
-    image: redis
-    ports:
-      - 6379:6379
+ 
       
-  # gateway:
-  #   build:
-  #     context: .
-  #     dockerfile: gateway/Dockerfile
-  #   ports:
-  #     - 8000:8000
-  #   env_file:
-  #     - ./gateway/.env
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    ports:
+      - 8000:8000
+    env_file:
+      - ./gateway/.env
+    networks:
+      - backend
+    depends_on:
+      - auth-server
+      - chat-server
+      - agent-server
+      - billing-server
+    restart: unless-stopped
 
-  # auth-server:
-  #   build:
-  #     context: .
-  #     dockerfile: services/auth/Dockerfile
-  #   ports:
-  #     - 8001:8001
-  #   env_file: 
-  #     - ./services/auth/.env
+  auth-server:
+    build:
+      context: .
+      dockerfile: services/auth/Dockerfile
+    ports:
+      - 8001:8001
+    env_file:
+      - ./services/auth/.env
+    networks:
+      - backend
+    restart: unless-stopped
 
-  # agent-server:
-  #   build:
-  #     context: .
-  #     dockerfile: services/agent/Dockerfile
-  #   ports:
-  #     - 8003:8003
-  #   env_file: 
-  #     - ./services/agent/.env
+  agent-server:
+    build:
+      context: .
+      dockerfile: services/agent/Dockerfile
+    ports:
+      - 8003:8003
+    env_file:
+      - ./services/agent/.env
+    networks:
+      - backend
+    depends_on:
+      - auth-server
+      - chat-server
+    restart: unless-stopped
 
-  # chat-server:
-  #   build:
-  #     context: .
-  #     dockerfile: services/chat/Dockerfile
-  #   ports:
-  #     - 8002:8002
-  #   env_file: 
-  #     - ./services/chat/.env
+  chat-server:
+    build:
+      context: .
+      dockerfile: services/chat/Dockerfile
+    ports:
+      - 8002:8002
+    env_file:
+      - ./services/chat/.env
+    networks:
+      - backend
+    depends_on:
+      - auth-server
+
+  billing-server:
+    build:
+      context: .
+      dockerfile: services/billing/Dockerfile
+    ports:
+      - 8004:8004
+    env_file:
+      - ./services/billing/.env
+    networks:
+      - backend
+    depends_on:
+      - auth-server
+    restart: unless-stopped
+
+networks:
+  backend:
+    driver: bridge

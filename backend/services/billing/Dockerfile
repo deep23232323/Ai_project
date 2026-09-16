@@ -1,4 +1,4 @@
-FROM node
+FROM node:20-alpine
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ COPY ./services/billing/package*.json ./services/billing/
 RUN cd services/billing && npm install
 
 COPY services/billing ./services/billing
-COPY shared ./shared
+COPY services/auth/shared ./shared
 
 WORKDIR /app/services/billing
 

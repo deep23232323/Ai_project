@@ -9,8 +9,7 @@ COPY ./gateway/package*.json ./gateway/
 RUN cd gateway && npm install
 
 COPY gateway ./gateway
-COPY shared ./shared
-
+COPY services/auth/shared ./shared
 WORKDIR /app/gateway
 
 EXPOSE 8000
