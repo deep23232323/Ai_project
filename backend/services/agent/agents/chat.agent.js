@@ -57,13 +57,15 @@ Formatting:
 
   const messages = [new SystemMessage(systemPrompt)];
 
-  history.forEach((msg) => {
-    if (msg.role === "user") {
+  const safeHistory = Array.isArray(history) ? history : [];
+
+  safeHistory.forEach((msg) => {
+    if (msg?.role === "user") {
       messages.push(new HumanMessage(msg.content));
     }
-    if (msg.role === "assistant") {
+    if (msg?.role === "assistant") {
       messages.push(new AIMessage(msg.content));
-    };
+    }
   });
 
   messages.push(new HumanMessage(state.prompt))
